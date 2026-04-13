@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suru ke liye — Maafi 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@400;600;700&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:#fdf6ee; --warm:#f5e6d3; --blush:#e8b4b8;
+  --rose:#c8566a; --deep:#7a2035; --ink:#2a1520;
+  --green:#6aab7a; --orange:#d4826a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:var(--c);font-family:'Jost',sans-serif;color:var(--ink);cursor:none}
+
+/* CURSOR */
+.cr{position:fixed;width:12px;height:12px;border-radius:50%;background:rgba(200,86,106,.5);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:multiply}
+.crt{position:fixed;width:28px;height:28px;border-radius:50%;border:1px solid rgba(200,86,106,.24);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .3s ease}
+
+/* CANVAS */
+#cvs{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+/* GRAIN */
+.grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.026;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* OVERLAY */
+#ov{position:fixed;inset:0;background:var(--c);z-index:500;opacity:0;pointer-events:none;transition:opacity .65s ease}
+#ov.on{opacity:1;pointer-events:all}
+
+/* STAGE */
+#stage{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center}
+
+/* SCENES */
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px;opacity:0;pointer-events:none;transition:opacity 1s ease}
+.sc.on{opacity:1;pointer-events:auto}
+
+/* PROGRESS */
+#prog{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:100}
+.pd{width:7px;height:7px;border-radius:50%;border:1.5px solid rgba(200,86,106,.42);background:transparent;transition:all .42s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
+.pd.a{background:var(--rose);border-color:var(--rose);transform:scale(1.55);box-shadow:0 0 9px rgba(200,86,106,.5)}
+
+/* CURTAIN */
+#curt{position:fixed;inset:0;z-index:600;background:var(--c);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity 2s ease}
+#curt.gone{opacity:0;pointer-events:none}
+.ci{font-size:2.8rem;animation:pulse 2.2s ease-in-out infinite;filter:drop-shadow(0 0 22px rgba(200,86,106,.85))}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.18);opacity:1}}
+.ct{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(.88rem,2.1vw,1.2rem);color:rgba(122,32,53,.5);letter-spacing:.16em;animation:bth 3s ease-in-out infinite}
+@keyframes bth{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ANIMS */
+@keyframes fUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hBeat{0%{opacity:0;transform:scale(.3) rotate(-20deg)}40%{opacity:1;transform:scale(1.22) rotate(4deg)}62%{transform:scale(.93) rotate(-2deg)}80%{transform:scale(1.07) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes ltrIn{from{opacity:0;transform:translateY(36px) scale(.93)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes bob{from{transform:translateY(0) rotate(-5deg)}to{transform:translateY(-5px) rotate(5deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pFall{0%{opacity:0;transform:translateY(-30px) rotate(0) scale(.5)}10%{opacity:.9}90%{opacity:.7}100%{opacity:0;transform:translateY(110vh) rotate(720deg) scale(1)}}
+
+/* BUTTON */
+.pbtn{display:inline-flex;align-items:center;gap:8px;padding:11px 30px;border-radius:100px;border:1px solid rgba(200,86,106,.32);background:transparent;color:var(--rose);font-family:'Jost',sans-serif;font-size:.72rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:all .24s ease;position:relative;overflow:hidden;opacity:0}
+.pbtn::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.28) 0%,transparent 60%);pointer-events:none}
+.pbtn:hover{background:var(--rose);color:#fff;border-color:var(--rose);box-shadow:0 8px 28px rgba(200,86,106,.38);transform:translateY(-2px)}
+.pbtn.run{animation:fUp .7s ease forwards}
+
+/* PETAL */
+.petal{position:fixed;pointer-events:none;z-index:3;animation:pFall linear forwards;opacity:0}
+
+/* ═══════════════════════════
+   S0 — INTRO TITLE
+═══════════════════════════ */
+.intro-wrap{display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center}
+.intro-tag{font-family:'Jost',sans-serif;font-size:.62rem;font-weight:200;letter-spacing:.4em;text-transform:uppercase;color:rgba(200,86,106,.6);opacity:0}
+.intro-tag.run{animation:fUp .7s ease .3s forwards}
+.intro-big{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(2rem,5.5vw,4rem);color:var(--deep);line-height:1.2;opacity:0}
+.intro-big.run{animation:fUp 1.1s cubic-bezier(.22,1,.36,1) .6s forwards}
+.intro-big span{color:var(--rose)}
+.intro-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(.88rem,2vw,1.1rem);color:rgba(42,21,32,.48);letter-spacing:.07em;line-height:1.8;max-width:440px;opacity:0}
+.intro-sub.run{animation:fUp .8s ease 1.2s forwards}
+.intro-em{font-size:2.2rem;opacity:0;filter:drop-shadow(0 6px 18px rgba(200,86,106,.5))}
+.intro-em.run{animation:hBeat 1.8s ease 1.8s forwards}
+
+/* ═══════════════════════════
+   S1 — THE BACKSTORY (chat)
+═══════════════════════════ */
+.story-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:500px;width:95%}
+.sc-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(.72rem,1.75vw,.86rem);color:rgba(122,32,53,.42);letter-spacing:.18em;text-transform:uppercase;opacity:0}
+.sc-label.run{animation:fUp .7s ease .1s forwards}
+.bubbles{display:flex;flex-direction:column;gap:9px;width:100%}
+.bbl{padding:10px 16px;border-radius:16px;font-size:clamp(.78rem,1.85vw,.9rem);font-weight:300;line-height:1.65;max-width:80%;opacity:0;position:relative}
+.bbl.L{background:#fff;border:1px solid rgba(200,86,106,.12);border-bottom-left-radius:4px;box-shadow:0 4px 16px rgba(200,86,106,.07);align-self:flex-start;color:var(--ink)}
+.bbl.R{background:linear-gradient(135deg,#e8b4b8,#c8566a);color:#fff;border-bottom-right-radius:4px;box-shadow:0 5px 20px rgba(200,86,106,.32);align-self:flex-end}
+.bbl.G{background:linear-gradient(135deg,#b8d4bc,#6aab7a);color:#fff;border-bottom-left-radius:4px;box-shadow:0 5px 16px rgba(106,171,122,.3);align-self:flex-start}
+.bbl.W{background:linear-gradient(135deg,#f5d4b4,var(--orange));color:#fff;border-bottom-right-radius:4px;box-shadow:0 5px 18px rgba(212,130,106,.35);align-self:flex-end}
+.bbl.run{animation:fUp .55s ease forwards}
+.who{font-size:.56rem;letter-spacing:.09em;text-transform:uppercase;opacity:.55;margin-bottom:3px;display:block}
+.bbl.L .who,.bbl.G .who{color:inherit}
+.bbl.R .who,.bbl.W .who{color:rgba(255,255,255,.7)}
+.warn-tag{display:inline-block;background:rgba(200,86,106,.08);border:1px solid rgba(200,86,106,.22);border-radius:6px;padding:8px 14px;font-size:clamp(.75rem,1.7vw,.86rem);color:var(--deep);font-family:'Cormorant Garamond',serif;font-style:italic;line-height:1.65;text-align:center;opacity:0}
+.warn-tag.run{animation:fUp .8s ease forwards}
+
+/* ═══════════════════════════
+   S2 — THE REPLAY (what went wrong)
+═══════════════════════════ */
+.replay-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:500px;width:95%}
+.replay-em{font-size:clamp(2.8rem,6.5vw,4.5rem);opacity:0;filter:drop-shadow(0 6px 20px rgba(200,86,106,.38))}
+.replay-em.run{animation:hBeat 2s ease forwards}
+.replay-h{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1.5rem,3.8vw,2.5rem);color:var(--deep);text-align:center;line-height:1.24;opacity:0}
+.replay-h.run{animation:fUp 1s ease .5s forwards}
+.replay-p{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(.86rem,1.95vw,1.04rem);color:rgba(42,21,32,.62);line-height:2.1;text-align:center;opacity:0;max-width:440px}
+.replay-p.run{animation:fUp .9s ease 1.05s forwards}
+.replay-p strong{color:var(--rose);font-weight:400}
+.replay-p em{font-style:italic;color:var(--deep)}
+.replay-p .warn{color:var(--orange);font-weight:400}
+
+/* ═══════════════════════════
+   S3 — THE LETTER
+═══════════════════════════ */
+.ltr-wrap{max-width:560px;width:95%;background:#fffaf6;border-radius:22px;padding:clamp(24px,5vw,50px) clamp(24px,5.5vw,56px);border:1px solid rgba(200,86,106,.11);box-shadow:0 0 0 1px rgba(200,86,106,.05),0 28px 85px rgba(122,32,53,.13),0 0 55px rgba(200,86,106,.05) inset;position:relative;overflow:hidden;opacity:0}
+.ltr-wrap.run{animation:ltrIn 1.2s cubic-bezier(.22,1,.36,1) forwards}
+.ltr-wrap::before{content:'🌸';position:absolute;right:-16px;bottom:-16px;font-size:145px;opacity:.04;line-height:1;pointer-events:none;transform:rotate(-14deg)}
+.ltr-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:22px 22px 0 0;background:linear-gradient(90deg,transparent,var(--blush),var(--rose),var(--blush),transparent)}
+.lc{position:absolute;width:23px;height:23px}
+.lc.tl{top:15px;left:15px;border-top:1.5px solid rgba(200,86,106,.3);border-left:1.5px solid rgba(200,86,106,.3);border-radius:4px 0 0 0}
+.lc.tr{top:15px;right:15px;border-top:1.5px solid rgba(200,86,106,.3);border-right:1.5px solid rgba(200,86,106,.3);border-radius:0 4px 0 0}
+.lc.bl{bottom:15px;left:15px;border-bottom:1.5px solid rgba(200,86,106,.3);border-left:1.5px solid rgba(200,86,106,.3);border-radius:0 0 0 4px}
+.lc.br{bottom:15px;right:15px;border-bottom:1.5px solid rgba(200,86,106,.3);border-right:1.5px solid rgba(200,86,106,.3);border-radius:0 0 4px 0}
+.lg{font-family:'Dancing Script',cursive;font-size:clamp(1.45rem,3.5vw,2.2rem);color:var(--deep);margin-bottom:11px;opacity:0}
+.lg.run{animation:fUp .8s ease .2s forwards}
+.ld{display:flex;align-items:center;gap:10px;margin:13px 0;opacity:0}
+.ld.run{animation:fUp .6s ease .5s forwards}
+.ldl{flex:1;height:.6px;background:linear-gradient(90deg,transparent,rgba(200,86,106,.26),transparent)}
+.lb{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(.86rem,1.9vw,1.02rem);color:rgba(42,21,32,.66);line-height:2.12;opacity:0}
+.lb.run{animation:fUp .9s ease .75s forwards}
+.lb .hi{color:var(--rose);font-weight:400}
+.lb em{font-style:italic;color:var(--deep)}
+.lb strong{font-weight:400;color:var(--deep)}
+.ls{font-family:'Dancing Script',cursive;font-size:clamp(1.25rem,3vw,1.85rem);color:var(--rose);text-align:right;margin-top:17px;text-shadow:0 2px 10px rgba(200,86,106,.2);opacity:0}
+.ls.run{animation:fUp .8s ease 1.08s forwards}
+.lf{display:flex;justify-content:center;gap:12px;margin-top:14px;opacity:0}
+.lf.run{animation:fUp .6s ease 1.28s forwards}
+.lfe{animation:bob ease-in-out infinite alternate}
+
+/* ═══════════════════════════
+   S4 — PROMISE
+═══════════════════════════ */
+.prom-wrap{display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;max-width:600px;width:95%;min-height:100%;justify-content:center;padding:20px}
+.prom-big{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(2rem,5.8vw,4.4rem);color:var(--deep);line-height:1.14;opacity:0}
+.prom-big.run{animation:fUp 1.2s cubic-bezier(.22,1,.36,1) forwards}
+.prom-big span{color:var(--rose)}
+.prom-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(.9rem,2vw,1.16rem);color:rgba(42,21,32,.48);letter-spacing:.06em;opacity:0;line-height:1.9}
+.prom-sub.run{animation:fUp .9s ease .6s forwards}
+.prom-cards{display:flex;gap:11px;flex-wrap:wrap;justify-content:center;margin-top:4px;opacity:0}
+.prom-cards.run{animation:fUp .8s ease 1s forwards}
+.pcard{background:#fff;border:1px solid rgba(200,86,106,.14);border-radius:14px;padding:11px 16px;display:flex;align-items:center;gap:9px;box-shadow:0 4px 16px rgba(200,86,106,.07);font-size:clamp(.68rem,1.56vw,.78rem);font-weight:300;color:var(--deep);transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;cursor:default}
+.pcard:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(200,86,106,.14)}
+.pci{font-size:1.2rem}
+.prom-sign{font-family:'Dancing Script',cursive;font-size:clamp(1.6rem,3.7vw,2.6rem);color:var(--rose);opacity:0;text-shadow:0 4px 14px rgba(200,86,106,.25)}
+.prom-sign.run{animation:fUp .9s ease 1.48s forwards}
+</style>
+</head>
+<body>
+
+<canvas id="cvs"></canvas>
+<div class="grain"></div>
+<div id="ov"></div>
+<div class="cr" id="cr"></div>
+<div class="crt" id="crt"></div>
+
+<!-- CURTAIN -->
+<div id="curt">
+  <div class="ci">🌸</div>
+  <div class="ct">Suru ke liye — dil se…</div>
+</div>
+
+<!-- PROGRESS -->
+<div id="prog">
+  <div class="pd a" onclick="jmp(0)"></div>
+  <div class="pd" onclick="jmp(1)"></div>
+  <div class="pd" onclick="jmp(2)"></div>
+  <div class="pd" onclick="jmp(3)"></div>
+  <div class="pd" onclick="jmp(4)"></div>
+</div>
+
+<div id="stage">
+
+<!-- ════ S0: INTRO ════ -->
+<div class="sc on" id="s0">
+  <div class="intro-wrap">
+    <div class="intro-tag" id="i0">sirf tere liye likha hai</div>
+    <div class="intro-big" id="i1">
+      Suru,<br>
+      <span>Maafi chahiye.</span>
+    </div>
+    <div class="intro-sub" id="i2">
+      Mujhe pata hai aapne mujhe warn kiya tha.<br>
+      Phir bhi maine wahi kiya jo nahi karna chahiye tha.<br>
+      Yeh sab padhna — please.
+    </div>
+    <div class="intro-em" id="i3">🌸</div>
+    <button class="pbtn" id="i4" onclick="jmp(1)" style="animation-delay:2.4s">
+      aage padhein →
+    </button>
+  </div>
+</div>
+
+<!-- ════ S1: THE BACKSTORY ════ -->
+<div class="sc" id="s1">
+  <div class="story-wrap">
+    <div class="sc-label" id="b0">jo actually hua — puri sacchi kahani</div>
+    <div class="bubbles">
+
+      <!-- Group chat is formed -->
+      <div class="bbl L" id="b1" style="animation-delay:.2s">
+        <span class="who">Friends Group 📱</span>
+        Arre sab ek group mein — yahan sab baatein freely 😄
+      </div>
+
+      <!-- Cousin joins -->
+      <div class="bbl G" id="b2" style="animation-delay:.8s">
+        <span class="who">System 🔔</span>
+        Suru ki cousin sister ne group join kiya
+      </div>
+
+      <!-- Suru's private warning -->
+      <div class="bbl R" id="b3" style="animation-delay:1.5s">
+        <span class="who">Suru — Private Message 🔒</span>
+        Yaar, group mein mujhe thoda normal naam se bulana… cousin hai wahan 🙏
+      </div>
+
+      <!-- Me ignoring it -->
+      <div class="bbl W" id="b4" style="animation-delay:2.3s">
+        <span class="who">Maine (galti se 😶)</span>
+        Haha Madam ji sun na… 😂
+      </div>
+
+      <!-- Friends join in -->
+      <div class="bbl L" id="b5" style="animation-delay:3s">
+        <span class="who">Dosto ne bhi 😬</span>
+        Hahaha Madam ji Paglu 🤣🤣
+      </div>
+
+      <!-- Cousin also sees -->
+      <div class="bbl G" id="b6" style="animation-delay:3.8s">
+        <span class="who">Suru ki Cousin Sister 👀</span>
+        Haha Madam ji Paglu 😂 (cousin ne dekha)
+      </div>
+
+    </div>
+
+    <div class="warn-tag" id="b7" style="animation-delay:4.8s">
+      ⚠️ Aapne clearly warn kiya tha — phir bhi maine family ke saamne wahi naam liya.<br>
+      <em style="font-style:italic;font-size:.85em;opacity:.7">Ab aapko ghar mein explain karna pad raha hai kya log aapko bulate hain.</em>
+    </div>
+    <button class="pbtn" id="b8" onclick="jmp(2)" style="animation-delay:0s">
+      aage padhein →
+    </button>
+  </div>
+</div>
+
+<!-- ════ S2: THE REALITY CHECK ════ -->
+<div class="sc" id="s2">
+  <div class="replay-wrap">
+    <div class="replay-em" id="r0">😔</div>
+    <div class="replay-h" id="r1">
+      Aapne bola tha.<br>Maine suna nahi.
+    </div>
+    <div class="replay-p" id="r2">
+      Yeh sirf ek naam ki baat nahi thi.<br><br>
+      Aapne mujhe <strong>personally warn kiya</strong> — iska matlab tha
+      aap uncomfortable thin. Aap mujh par <em>trust karti thin</em> ki main
+      samjhunga.<br><br>
+      Lekin maine us trust ko <span class="warn">ignore kar diya</span> —
+      aur apni masti mein itna kho gaya ki bhool gaya ki
+      <strong>aapki cousin bhi wahan thi.</strong><br><br>
+      Ab unhe pata chal gaya jo aap nahi chahti thin. <strong>Yeh meri galti hai.</strong>
+    </div>
+    <button class="pbtn" id="r3" onclick="jmp(3)" style="animation-delay:2s">
+      meri maafi padh →
+    </button>
+  </div>
+</div>
+
+<!-- ════ S3: THE LETTER ════ -->
+<div class="sc" id="s3">
+  <div class="ltr-wrap" id="lBox">
+    <div class="ltr-bar"></div>
+    <div class="lc tl"></div><div class="lc tr"></div>
+    <div class="lc bl"></div><div class="lc br"></div>
+
+    <div class="lg" id="l0">Pyaari Suru,</div>
+
+    <div class="ld" id="l1">
+      <div class="ldl"></div><span style="font-size:.88rem">🌸</span><div class="ldl"></div>
+    </div>
+
+    <div class="lb" id="l2">
+      Sabse pehle — <span class="hi">aap sahi hain, main galat tha.</span>
+      Koi excuse nahi dunga kyunki koi excuse hai hi nahi.<br><br>
+
+      Aapne mujhe khud private mein bola tha ki group mein
+      woh naam mat lena — aur main jaanta tha <em>kyun aap bol rahi thin.</em>
+      Aapki cousin wahan thi. Aap apni image bachana chahti thin
+      apne ghar ke logo ke saamne.<br><br>
+
+      Aur maine kya kiya? <strong>Wahi kiya jo aapne mana kiya tha.</strong>
+      Sirf main hi nahi ruka — doston ko bhi hasne ka mauka de diya
+      "Madam ji Paglu" bolke. Aapki cousin ne dekha — aur ab
+      unhe pata chal gaya jo aap nahi chahti thin.<br><br>
+
+      <span class="hi">Yeh mujhe genuinely bura lagta hai.</span>
+      Isliye nahi ki aap naraaz hain — isliye ki <em>main aapka dost hoon</em>
+      aur maine aapko embarrass kiya, woh bhi tab jab aapne
+      mujhe <strong>pehle hi bol diya tha.</strong><br><br>
+
+      Aap mujhpar trust karti thin — aur main us trust ke laayak nahi raha us din.
+      <strong>Yeh mujhse hua. Mujhe maafi maangni hai.</strong>
+    </div>
+
+    <div class="ls" id="l3">— aapka bestfriend, hamesha 🤍</div>
+
+    <div class="lf" id="l4">
+      <span class="lfe" style="font-size:1.1rem;animation-duration:1.4s;animation-delay:0s">🌸</span>
+      <span class="lfe" style="font-size:1.1rem;animation-duration:1.8s;animation-delay:.3s">✨</span>
+      <span class="lfe" style="font-size:1.1rem;animation-duration:1.5s;animation-delay:.6s">💕</span>
+      <span class="lfe" style="font-size:1.1rem;animation-duration:1.9s;animation-delay:.9s">✨</span>
+      <span class="lfe" style="font-size:1.1rem;animation-duration:1.4s;animation-delay:1.2s">🌸</span>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:14px;opacity:0;transition:opacity .7s ease" id="l5">
+      <button class="pbtn" onclick="jmp(4)" style="opacity:1;animation:none">
+        aage padhein →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ S4: PROMISE ════ -->
+<div class="sc" id="s4">
+  <div class="prom-wrap">
+    <div class="prom-big" id="p0">
+      Suru,<br><span>Maaf kar de.</span>
+    </div>
+    <div class="prom-sub" id="p1">
+      Koi agar-magar nahi. Koi excuse nahi.<br>
+      Sirf dil se maafi — teri yaar ki taraf se.
+    </div>
+    <div class="prom-cards" id="p2">
+      <div class="pcard"><span class="pci">🙏</span>Aage kabhi aisa nahi karunga</div>
+      <div class="pcard"><span class="pci">🔒</span>Teri privacy ka dhyan rakhunga</div>
+      <div class="pcard"><
