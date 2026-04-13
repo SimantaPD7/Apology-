@@ -289,7 +289,7 @@ body{background:var(--c);font-family:'Jost',sans-serif;color:var(--ink);cursor:n
     <div class="lc tl"></div><div class="lc tr"></div>
     <div class="lc bl"></div><div class="lc br"></div>
 
-    <div class="lg" id="l0">Pyaari Suru,</div>
+    <div class="lg" id="l0">Bholi bhali Suru,</div>
 
     <div class="ld" id="l1">
       <div class="ldl"></div><span style="font-size:.88rem">🌸</span><div class="ldl"></div>
@@ -348,4 +348,149 @@ body{background:var(--c);font-family:'Jost',sans-serif;color:var(--ink);cursor:n
     <div class="prom-cards" id="p2">
       <div class="pcard"><span class="pci">🙏</span>Aage kabhi aisa nahi karunga</div>
       <div class="pcard"><span class="pci">🔒</span>Teri privacy ka dhyan rakhunga</div>
-      <div class="pcard"><
+      <div class="pcard"><span class="pci">👂</span>Jab tu roke — rukuunga</div>
+      <div class="pcard"><span class="pci">💕</span>Teri dosti mujhe bahut keemat hai</div>
+    </div>
+    <div class="prom-sign" id="p3">— always yours, bestfriend 🌸</div>
+    <button class="pbtn" id="p4" onclick="restart()" style="animation-delay:1.8s">
+      phir se padhein ↺
+    </button>
+  </div>
+</div>
+
+</div><!-- /stage -->
+
+<script>
+/* ══ CANVAS ══ */
+const C=document.getElementById('cvs'),X=C.getContext('2d');
+let W,H,motes=[];
+function rsz(){W=C.width=innerWidth;H=C.height=innerHeight}
+rsz();window.addEventListener('resize',rsz);
+function mkM(){return{x:Math.random()*W,y:H+8,r:.5+Math.random()*2.2,vx:(Math.random()-.5)*.5,vy:-(1+Math.random()*1.8),life:1,decay:.003+Math.random()*.005,col:Math.random()>.5?'215,130,150':'200,86,106'}}
+for(let i=0;i<14;i++){const m=mkM();m.y=Math.random()*H;motes.push(m)}
+let lt=0;
+(function loop(ts){
+  const dt=Math.min((ts-lt)/1000,.05);lt=ts;
+  X.clearRect(0,0,W,H);
+  if(Math.random()<.038)motes.push(mkM());
+  for(let i=motes.length-1;i>=0;i--){
+    const m=motes[i];m.x+=m.vx;m.y+=m.vy;m.life-=m.decay;
+    if(m.life<=0||m.y<-20){motes.splice(i,1);continue}
+    const a=(.5+.5*Math.sin(lt/400+i))*m.life;
+    X.beginPath();X.arc(m.x,m.y,m.r,0,Math.PI*2);
+    X.fillStyle=`rgba(${m.col},${a.toFixed(2)})`;X.fill();
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ══ CURSOR ══ */
+const cr=document.getElementById('cr'),crt=document.getElementById('crt');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cr.style.left=mx+'px';cr.style.top=my+'px'});
+(function aC(){tx+=(mx-tx)*.14;ty+=(my-ty)*.14;crt.style.left=tx+'px';crt.style.top=ty+'px';requestAnimationFrame(aC)})();
+
+/* ══ SCENES ══ */
+let cur=0;
+const IDS=['s0','s1','s2','s3','s4'];
+const INITS=[is0,is1,is2,is3,is4];
+
+function flash(cb){
+  const o=document.getElementById('ov');
+  o.classList.add('on');
+  setTimeout(()=>{cb();setTimeout(()=>o.classList.remove('on'),80)},660);
+}
+function jmp(n){
+  if(n===cur)return;
+  flash(()=>{
+    document.getElementById(IDS[cur]).classList.remove('on');
+    cur=n;
+    document.getElementById(IDS[cur]).classList.add('on');
+    updDots();INITS[cur]();
+  });
+}
+function nextSc(){if(cur<4)jmp(cur+1)}
+function updDots(){document.querySelectorAll('.pd').forEach((d,i)=>d.classList.toggle('a',i===cur))}
+function run(id){const e=document.getElementById(id);if(e){e.classList.add('run');if(e.id==='l5')e.style.opacity='1';}}
+
+function petals(n){
+  const ems=['🌸','✨','💕','🌺','⭐','🎀'];
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='petal';
+      el.textContent=ems[Math.floor(Math.random()*ems.length)];
+      const dur=4.5+Math.random()*4;
+      el.style.cssText=`left:${15+Math.random()*70}vw;top:-40px;font-size:${.6+Math.random()*.9}rem;animation-duration:${dur}s;animation-delay:${Math.random()*1.2}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),(dur+2.5)*1000);
+    },i*100);
+  }
+}
+
+/* ── S0 ── */
+function is0(){
+  setTimeout(()=>{
+    run('i0');run('i1');run('i2');
+    setTimeout(()=>run('i3'),1900);
+    setTimeout(()=>document.getElementById('i4').classList.add('run'),2400);
+  },100);
+}
+
+/* ── S1 ── */
+function is1(){
+  run('b0');
+  const ids=['b1','b2','b3','b4','b5','b6'];
+  ids.forEach(id=>document.getElementById(id).classList.add('run'));
+  setTimeout(()=>run('b7'),5200);
+  setTimeout(()=>document.getElementById('b8').classList.add('run'),6200);
+}
+
+/* ── S2 ── */
+function is2(){
+  run('r0');run('r1');run('r2');
+  setTimeout(()=>document.getElementById('r3').classList.add('run'),2100);
+}
+
+/* ── S3 ── */
+function is3(){
+  document.getElementById('lBox').classList.add('run');
+  setTimeout(()=>{run('l0');run('l1');run('l2');run('l3');run('l4')},250);
+  petals(5);
+  setTimeout(()=>document.getElementById('l5').classList.add('run'),2800);
+}
+
+/* ── S4 ── */
+function is4(){
+  run('p0');run('p1');run('p2');run('p3');
+  setTimeout(()=>document.getElementById('p4').classList.add('run'),1900);
+  petals(24);
+}
+
+function restart(){
+  document.querySelectorAll('.run').forEach(el=>{el.classList.remove('run');void el.offsetWidth});
+  document.getElementById('lBox').classList.remove('run');
+  jmp(0);setTimeout(is0,800);
+}
+
+/* ══ BOOT ══ */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('curt').classList.add('gone');
+    setTimeout(is0,500);
+  },2400);
+});
+
+/* ══ NAV ══ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')nextSc();
+  if(e.key==='ArrowLeft'&&cur>0)jmp(cur-1);
+});
+let ts0=0;
+document.addEventListener('touchstart',e=>ts0=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+  const d=e.changedTouches[0].clientX-ts0;
+  if(d<-50)nextSc();if(d>50&&cur>0)jmp(cur-1);
+});
+</script>
+</body>
+</html>
